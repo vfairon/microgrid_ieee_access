@@ -146,3 +146,25 @@ Your CORE containers are now configured to communicate with PowerWorld DS over t
 ├── Microgrid_PowerWorld.pwd
 └── README.md
 ```
+
+# 📄 Citation
+
+If you use this work in your research or project, please cite our paper:
+
+**Cyber-Physical Emulation and Threat Scenario Simulation for Enhanced Microgrid Resilience**  
+*Khandaker Akramul Haque, Mohamed Massaoudi, Leen Al Homoud, Katherine R. Davis, Mahmoud Kabalan, Hassan Salamy*  
+**IEEE Access, 2025, Vol. 13, pp. 101455–101471**  
+[https://doi.org/10.1109/ACCESS.2025.3578421](https://doi.org/10.1109/ACCESS.2025.3578421)
+
+## BibTeX:
+```bibtex
+@ARTICLE{11029216,
+  author={Akramul Haque, Khandaker and Massaoudi, Mohamed and Al Homoud, Leen and Davis, Katherine R. and Kabalan, Mahmoud and Salamy, Hassan},
+  journal={IEEE Access}, 
+  title={Cyber-Physical Emulation and Threat Scenario Simulation for Enhanced Microgrid Resilience}, 
+  year={2025},
+  volume={13},
+  pages={101455-101471},
+  doi={10.1109/ACCESS.2025.3578421}
+}
+```
