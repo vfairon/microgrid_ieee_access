@@ -29,6 +29,10 @@ RUN ln -s /usr/bin/python3.6 /usr/bin/python
 # Install pybind11
 RUN pip3 install pybind11
 
+# Install pandapower (for the pandapower_outstation.py alternative to PowerWorld DS)
+RUN pip3 install pandapower
+RUN pip3 install numba
+
 # Install C++14 compiler (gcc/g++)
 RUN apt-get install -y gcc g++ 
 
@@ -48,8 +52,10 @@ RUN git clone --recursive http://github.com/Kisensum/pydnp3 && \
 # Set the default working directory
 WORKDIR /workspace
 
-# Copy the master script into the workspace
+# Copy the master script and the pandapower outstation into the workspace
 COPY pydnp3_master.py /workspace/pydnp3_master.py
+COPY pandapower_grid.py /workspace/pandapower_grid.py
+COPY pandapower_outstation.py /workspace/pandapower_outstation.py
 
 # Expose ports if necessary (for server use, if any)
 EXPOSE 8080

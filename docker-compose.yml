@@ -1,0 +1,40 @@
+services:
+  outstation:
+    build: .
+    image: dnp3_container_image
+    container_name: outstation
+    hostname: outstation
+    command: python3 pandapower_outstation.py
+    networks:
+      - dnp3net
+
+  master:
+    build: .
+    image: dnp3_container_image
+    container_name: master
+    hostname: master
+    depends_on:
+      - outstation
+    environment:
+      - SSH_PASSWORD=1
+    # README step 4 (apt install openssh-server / passwd root / service ssh start),
+    # run automatically on container start instead of by hand -- `passwd` itself
+    # needs an interactive TTY to prompt twice, so `yes` feeds it the password
+    # non-interactively. Then idles so `docker compose exec master ...` still works.
+    # Get an interactive master CLI with:
+    #   docker compose exec master python3 pydnp3_master.py 10 outstation
+    command: >
+      bash -c "apt update && apt install -y openssh-server &&
+               yes $$SSH_PASSWORD | passwd root &&
+               service ssh start &&
+               tail -f /dev/null"
+    stdin_open: true
+    tty: true
+    ports:
+      - "2222:22"
+    networks:
+      - dnp3net
+
+networks:
+  dnp3net:
+    driver: bridge

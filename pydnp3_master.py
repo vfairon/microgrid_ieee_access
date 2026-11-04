@@ -6,7 +6,7 @@ from datetime import datetime
 import socket
 from pydnp3 import opendnp3, openpal, asiopal, asiodnp3
 #from pydnp3 import openpal, asiopal, asiodnp3
-FILTERS = opendnp3.levels.NORMAL | opendnp3.levels.ALL_COMMS
+FILTERS = opendnp3.levels.NORMAL
 
 # DNP3 outstation running in PWDS *************
 HOST = "PowerWolrdDS_Server_IP"
@@ -24,7 +24,7 @@ stdout_stream.setFormatter(logging.Formatter('%(asctime)s\t%(name)s\t%(levelname
 
 _log = logging.getLogger(__name__)
 _log.addHandler(stdout_stream)
-_log.setLevel(logging.DEBUG)
+_log.setLevel(logging.WARNING)
 
 
 class MyMaster:
@@ -88,9 +88,11 @@ class MyMaster:
         # self.slow_scan = self.master.AddClassScan(opendnp3.ClassField().AllClasses(),
         #                                           openpal.TimeDuration().Minutes(30),
         #                                           opendnp3.TaskConfig().Default())
-        # Set up a "fast scan", a relatively-frequent exception poll that requests events and class 1 static data.
+        # Set up a "fast scan" but never auto-fire it (TimeDuration.Max()) -- it only runs when
+        # explicitly requested via do_scan_fast's fast_scan.Demand(), so the CLI stays silent
+        # until you actually ask for something instead of printing every few seconds on its own.
         self.fast_scan = self.master.AddClassScan(opendnp3.ClassField(opendnp3.ClassField.CLASS_0),
-                                                  openpal.TimeDuration().Seconds(5),
+                                                  openpal.TimeDuration().Max(),
                                                   opendnp3.TaskConfig().Default())
 
         self.channel.SetLogFilters(openpal.LogFilters(opendnp3.levels.ALL_COMMS))
@@ -155,7 +157,6 @@ class MyMaster:
         # conn.sendall(str.encode(data_to_send))
 
     def shutdown(self):
-        del self.slow_scan
         del self.fast_scan
         del self.master
         del self.channel
@@ -175,7 +176,6 @@ class MyLogger(openpal.ILogHandler):
         filters = entry.filters.GetBitfield()
         location = entry.location.rsplit('/')[-1] if entry.location else ''
         message = entry.message
-        print('Test   Values '+str(message))
         _log.debug('LOG\t\t{:<10}\tfilters={:<5}\tlocation={:<25}\tentry={}'.format(flag, filters, location, message))
 
 
@@ -520,6 +520,7 @@ def main():
     """The Master has been started from the command line. Execute ad-hoc tests if desired."""
     # global conn
     # app = MyMaster()
+    global HOST
     args = sys.argv
     print(args)
     outstation = int(args[1])

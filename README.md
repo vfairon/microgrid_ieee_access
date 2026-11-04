@@ -132,12 +132,72 @@ Your CORE containers are now configured to communicate with PowerWorld DS over t
 
 ---
 
+## 🧪 How to test the pandapower integration
+
+Two independent layers, test them separately:
+
+**1. The grid model alone (no pydnp3/Docker/CORE needed)**
+
+`pandapower_grid.py` only depends on `pandapower`, so it runs directly on the
+host:
+
+```bash
+pip3 install --user pandapower   # if not already installed
+python3 pandapower_grid.py
+```
+
+Expected output: initial bus voltages/line loading with both breakers closed,
+then after `operate_switch(0, close=False)` the voltage of the now-isolated
+feeder bus becomes `nan` (it's no longer fed) while the other bus is
+unaffected — confirming the breaker→power-flow wiring actually changes grid
+state instead of being a no-op.
+
+**2. The full DNP3 master ↔ outstation path (needs the Docker build)**
+
+`pydnp3` itself isn't pip-installable (it's built from source against an old
+gcc-9/Python 3.6 toolchain, which is why the `Dockerfile` exists) — this part
+can only be exercised inside the Docker image, not on a bare host:
+
+```bash
+docker build -t dnp3_container_image .
+docker run -dit --name outstation_test dnp3_container_image
+docker run -dit --name master_test dnp3_container_image
+
+# terminal 1: start the outstation (replaces PowerWorld)
+docker exec -it outstation_test python3 pandapower_outstation.py
+
+# terminal 2: get the outstation's container IP, then start the master against it
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' outstation_test
+docker exec -it master_test python3 pydnp3_master.py 10 <outstation_ip>
+```
+
+At the `master_0>` prompt:
+
+```
+scan_all          # read initial breaker status / bus voltages / line loading
+o3 0 TRIP_PULSE_ON # open breaker 0 (feeder1)
+scan_all           # breaker 0 now OPEN, feeder1 bus voltage reading reflects the outage
+o1 0 LATCH_ON       # close breaker 0 again
+scan_all           # feeder1 bus voltage back to normal
+```
+
+If `scan_all` reflects the breaker state change each time, the master →
+outstation → pandapower → power-flow → back-to-master loop is working
+end-to-end. (This Docker-based step hasn't been run in this session — the
+local sandbox has no Docker daemon available — so verify it on your machine;
+the grid-model logic in step 1, which doesn't need pydnp3, has been run and
+confirmed above.)
+
+---
+
 ## 📂 File Structure
 
 ```
 .
 ├── Dockerfile
 ├── pydnp3_master.py
+├── pandapower_grid.py
+├── pandapower_outstation.py
 ├── docker.py
 ├── test.sh
 ├── setup_and_connect.sh
@@ -146,6 +206,39 @@ Your CORE containers are now configured to communicate with PowerWorld DS over t
 ├── Microgrid_PowerWorld.pwd
 └── README.md
 ```
+
+---
+
+## 🆓 Alternative: using pandapower instead of PowerWorld DS
+
+PowerWorld Simulator/DS requires a paid license. `pandapower_outstation.py` +
+`pandapower_grid.py` provide a free, open-source DNP3 **outstation** that plays
+the same role as PowerWorld DS in the steps above, so steps 1 and 2 of the
+guide (configuring PowerWorld DS and noting its IP) can be skipped entirely.
+
+- `pandapower_grid.py` — a plain `pandapower` grid model (no pydnp3 dependency)
+  with a small generic radial microgrid (`build_network()`) and a
+  `MicrogridModel` wrapper exposing `operate_switch`/`read_binary`/
+  `read_analog`/`write_analog`. **This is a stand-in topology, not an import of
+  `Microgrid_PowerWorld.pwb`** (that file is a proprietary PowerWorld binary
+  format) — adjust `build_network()` and the `*_POINT_MAP` dicts if you need it
+  to match the paper's exact scenario.
+- `pandapower_outstation.py` — wraps `MicrogridModel` with a `pydnp3` DNP3
+  **outstation** (built from the same `pydnp3`/`opendnp3` bindings
+  `pydnp3_master.py` uses as a master), listening on `0.0.0.0:20000`. Breaker
+  commands (`o0/o1/o3`, `s0/s1/s2`) flip pandapower switches and re-run the
+  power flow; `scan_*` commands on the master read back the resulting bus
+  voltages / line loading / breaker status.
+
+To use it: build the same Docker image (now also containing `pandapower`,
+`pandapower_grid.py`, `pandapower_outstation.py`), run one container as the
+outstation (`python3 pandapower_outstation.py`) in place of the Windows
+PowerWorld machine, and point `pydnp3_master.py`'s `HOST` (or the `main()`
+argument) at that container's IP instead of PowerWorld's. Everything else in
+the guide (CORE topology, `docker.py`, `test.sh`/`setup_and_connect.sh`) is
+unchanged.
+
+See "How to test the pandapower integration" below.
 
 # 📄 Citation
 
