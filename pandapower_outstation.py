@@ -179,8 +179,10 @@ class OutstationCommandHandler(opendnp3.ICommandHandler):
 
     def _operate_breaker(self, command, index):
         if command.functionCode in CLOSE_CODES:
+            _log.info('COMMAND: breaker {} received CLOSE ({})'.format(index, command.functionCode))
             return self.model.operate_switch(index, close=True)
         if command.functionCode in OPEN_CODES:
+            _log.info('COMMAND: breaker {} received OPEN ({})'.format(index, command.functionCode))
             return self.model.operate_switch(index, close=False)
         _log.debug('Unhandled ControlCode {} for index {}'.format(command.functionCode, index))
         return False
