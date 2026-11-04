@@ -150,8 +150,11 @@
         <service name="OSPFv2"/>
       </services>
     </device>
-    <device id="31" name="DockerSTV" icon="" canvas="1" type="" class="docker" image="ubuntu:latest" compose="" compose_name="">
+    <device id="31" name="DockerSTV" icon="" canvas="1" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="148.079833984375" y="872.5762329101562" lat="47.57123439060687" lon="-122.13032888307791" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
     </device>
     <device id="20" name="n20" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
       <position x="1405.8101806640625" y="1894.7001953125" lat="47.561941399838034" lon="-122.11338130717206" alt="2.0"/>
@@ -159,11 +162,17 @@
         <service name="DefaultRoute"/>
       </services>
     </device>
-    <device id="33" name="DockerMGEx" icon="" canvas="0" type="" class="docker" image="ubuntu:latest" compose="" compose_name="">
+    <device id="33" name="DockerMGEx" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="1692.5687255859375" y="524.4420166015625" lat="47.57439919589739" lon="-122.10951731341574" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
     </device>
-    <device id="34" name="DockerAPFac" icon="" canvas="0" type="" class="docker" image="ubuntu:latest" compose="" compose_name="">
+    <device id="34" name="DockerAPFac" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="1745.539794921875" y="898.2974243164062" lat="47.57100055779096" lon="-122.10880354259773" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
     </device>
     <device id="29" name="n29" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
       <position x="522.000732421875" y="2048.34814453125" lat="47.56054431423079" lon="-122.12529040020613" alt="2.0"/>
@@ -195,20 +204,41 @@
         <service name="DefaultRoute"/>
       </services>
     </device>
-    <device id="32" name="DockerOWSV" icon="" canvas="1" type="" class="docker" image="ubuntu:latest" compose="" compose_name="">
+    <device id="32" name="DockerOWSV" icon="" canvas="1" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="1146.386474609375" y="599.2303466796875" lat="47.57371932912185" lon="-122.11687697137523" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
     </device>
-    <device id="35" name="DockerFacDCV" icon="" canvas="0" type="" class="docker" image="ubuntu:latest" compose="" compose_name="">
+    <device id="35" name="DockerFacDCV" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="1439.001708984375" y="1376.1431884765625" lat="47.566656244866905" lon="-122.11293406031416" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
     </device>
-    <device id="36" name="DockerFDBase" icon="" canvas="0" type="" class="docker" image="ubuntu:latest" compose="" compose_name="">
+    <device id="36" name="DockerFDBase" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="969.0503540039062" y="1536.07568359375" lat="47.56520214541214" lon="-122.11926652758874" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
     </device>
-    <device id="37" name="DockerAndAre" icon="" canvas="0" type="" class="docker" image="ubuntu:latest" compose="" compose_name="">
+    <device id="37" name="DockerAndAre" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="166.33006286621094" y="1232.5087890625" lat="47.5679621283223" lon="-122.13008296618476" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
     </device>
-    <device id="38" name="DockerCentralR" icon="" canvas="0" type="" class="docker" image="ubuntu:latest" compose="" compose_name="">
+    <device id="38" name="DockerCentralR" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="715.06005859375" y="928.5184936523438" lat="47.57072581499452" lon="-122.12268897805451" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
+    </device>
+    <device id="39" name="DockerMaster" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
+      <position x="1078.144775390625" y="700.0" lat="47.57133483470227" lon="-122.11779650979658" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
+      </services>
     </device>
   </devices>
   <links>
@@ -355,6 +385,51 @@
     <link node1="25" node2="23">
       <iface1 id="1" name="veth25.1.1"/>
       <iface2 id="0" name="eth0" mac="00:00:00:aa:00:1c" ip4="10.0.11.20" ip4_mask="24" ip6="2001:0:0:b::14" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="1" node2="38">
+      <iface1 id="8" name="eth8" mac="00:00:00:aa:00:25" ip4="10.0.20.1" ip4_mask="24" ip6="2001:0:0:20::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:26" ip4="10.0.20.2" ip4_mask="24" ip6="2001:0:0:20::2" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="2" node2="33">
+      <iface1 id="2" name="eth2" mac="00:00:00:aa:00:27" ip4="10.0.21.1" ip4_mask="24" ip6="2001:0:0:21::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:28" ip4="10.0.21.2" ip4_mask="24" ip6="2001:0:0:21::2" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="3" node2="32">
+      <iface1 id="2" name="eth2" mac="00:00:00:aa:00:29" ip4="10.0.22.1" ip4_mask="24" ip6="2001:0:0:22::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:2a" ip4="10.0.22.2" ip4_mask="24" ip6="2001:0:0:22::2" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="4" node2="31">
+      <iface1 id="2" name="eth2" mac="00:00:00:aa:00:2b" ip4="10.0.23.1" ip4_mask="24" ip6="2001:0:0:23::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:2c" ip4="10.0.23.2" ip4_mask="24" ip6="2001:0:0:23::2" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="14" node2="36">
+      <iface1 id="2" name="eth2" mac="00:00:00:aa:00:2d" ip4="10.0.24.1" ip4_mask="24" ip6="2001:0:0:24::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:2e" ip4="10.0.24.2" ip4_mask="24" ip6="2001:0:0:24::2" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="18" node2="35">
+      <iface1 id="2" name="eth2" mac="00:00:00:aa:00:2f" ip4="10.0.25.1" ip4_mask="24" ip6="2001:0:0:25::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:30" ip4="10.0.25.2" ip4_mask="24" ip6="2001:0:0:25::2" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="22" node2="34">
+      <iface1 id="2" name="eth2" mac="00:00:00:aa:00:31" ip4="10.0.26.1" ip4_mask="24" ip6="2001:0:0:26::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:32" ip4="10.0.26.2" ip4_mask="24" ip6="2001:0:0:26::2" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="26" node2="37">
+      <iface1 id="2" name="eth2" mac="00:00:00:aa:00:33" ip4="10.0.27.1" ip4_mask="24" ip6="2001:0:0:27::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:34" ip4="10.0.27.2" ip4_mask="24" ip6="2001:0:0:27::2" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="1" node2="39">
+      <iface1 id="9" name="eth9" mac="00:00:00:aa:00:35" ip4="10.0.28.1" ip4_mask="24" ip6="2001:0:0:28::1" ip6_mask="64"/>
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:36" ip4="10.0.28.2" ip4_mask="24" ip6="2001:0:0:28::2" ip6_mask="64"/>
       <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
     </link>
   </links>

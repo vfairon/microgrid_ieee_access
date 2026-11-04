@@ -1,5 +1,5 @@
 # Define the container name given by user
-TARGET_NAME="my_named_container"  # <-- Replace this with your actual container name
+TARGET_NAME="master"  # <-- Replace this with your actual container name
 
 # Start the container with that name (if not already running)
 docker start "$TARGET_NAME" >/dev/null 2>&1 || {

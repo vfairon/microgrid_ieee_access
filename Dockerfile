@@ -13,7 +13,16 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     wget \
     git \
-    && apt-get clean
+    openssh-client \
+    openssh-server \
+    sshpass \
+    iproute2 \
+    iputils-ping \
+    && apt-get clean \
+    && mkdir -p /run/sshd \
+    && yes '1' | passwd root \
+    && sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
 # Install gcc-9 and g++-9
 RUN apt-get update && apt-get install -y \
@@ -49,8 +58,13 @@ RUN git clone --recursive http://github.com/Kisensum/pydnp3 && \
     python3 setup.py install
 
 
-# Set the default working directory
-WORKDIR /workspace
+# No WORKDIR here on purpose: `docker cp <src> <container>:relname` resolves a
+# relative destination against WORKDIR, but `docker exec <container> <cmd>`
+# always starts at / regardless of WORKDIR -- that mismatch is exactly what
+# broke CORE's DefaultRoute service (it writes/chmods files by relative name).
+# Leaving the default WORKDIR (/) keeps both operations agreeing on the same
+# directory. Scripts below are still placed at an explicit /workspace path;
+# just `cd /workspace` (or use the absolute path) when running them by hand.
 
 # Copy the master script and the pandapower outstation into the workspace
 COPY pydnp3_master.py /workspace/pydnp3_master.py
