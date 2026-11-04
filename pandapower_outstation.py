@@ -16,7 +16,12 @@ import time
 
 from pydnp3 import opendnp3, openpal, asiopal, asiodnp3
 
-from pandapower_grid import MicrogridModel, SWITCH_POINT_MAP, ANALOG_POINT_MAP, BINARY_STATUS_POINT_MAP
+from pandapower_grid import (
+    MicrogridModel,
+    SWITCH_POINT_MAP,
+    ANALOG_POINT_MAP,
+    BINARY_STATUS_POINT_MAP,
+)
 
 LOG_LEVELS = opendnp3.levels.NORMAL | opendnp3.levels.ALL_COMMS
 LOCAL_IP = "0.0.0.0"
@@ -74,8 +79,12 @@ class OutstationApplication(opendnp3.IOutstationApplication):
 
     @staticmethod
     def configure_stack():
-        stack_config = asiodnp3.OutstationStackConfig(opendnp3.DatabaseSizes.AllTypes(10))
-        stack_config.outstation.eventBufferConfig = opendnp3.EventBufferConfig().AllTypes(10)
+        # Point indices now go up to 20 (21 DNP3 objects total, per
+        # pandapower_grid.py) -- must be AT LEAST 21, not the old 10, or
+        # configuring/pushing points past index 9 fails outright.
+        db_size = max(21, max(ANALOG_POINT_MAP, default=0) + 1, max(BINARY_STATUS_POINT_MAP, default=0) + 1)
+        stack_config = asiodnp3.OutstationStackConfig(opendnp3.DatabaseSizes.AllTypes(db_size))
+        stack_config.outstation.eventBufferConfig = opendnp3.EventBufferConfig().AllTypes(db_size)
         stack_config.outstation.params.allowUnsolicited = True
         stack_config.link.LocalAddr = 10
         stack_config.link.RemoteAddr = 1
@@ -161,7 +170,10 @@ class OutstationCommandHandler(opendnp3.ICommandHandler):
     def Select(self, command, index):
         """Select is a no-op dry-run: accept it if the index is one we know about."""
         if isinstance(command, opendnp3.ControlRelayOutputBlock):
-            known = index in SWITCH_POINT_MAP
+            # Breakers (SWITCH_POINT_MAP) and generator/ESS protection points are both
+            # commandable Binary Outputs per the paper's Table 2 -- BINARY_STATUS_POINT_MAP
+            # covers both.
+            known = index in BINARY_STATUS_POINT_MAP
         else:
             known = index in ANALOG_POINT_MAP
         return opendnp3.CommandStatus.SUCCESS if known else opendnp3.CommandStatus.NOT_SUPPORTED
