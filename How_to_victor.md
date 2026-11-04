@@ -1,5 +1,11 @@
 # How to run this project 
 
+## TODOS : 
+1. verify pandapower_grid.py and pandapower_outstation.py to check if matches paper (**@Medhi**)
+2. see how to connect laptop (or VM) to the "internet docker" of the CORE to be able to execute first attack (laptop <=>"internet docker"<=>master and execute command) **@Victor**
+3. Second attack (**@Chacha**)
+
+
 ## 1. Install CORE
 
 bonne merde ! 
