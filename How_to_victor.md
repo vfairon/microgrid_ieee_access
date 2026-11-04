@@ -59,5 +59,21 @@ quit                       # NOT ctrl-c, that crashes it
 ```
 outstation terminal logs `COMMAND: breaker 0 received CLOSE (...)` when it gets one, so you can see it land without decoding raw DNP3 hex
 
+## 7. Replicate the paper's attack
+why: paper's first real attack (after phishing gets them in) = disconnect a breaker to cause instability/blackout. closest match we have = `CB8` (STEAM mains breaker), index `5` — it's normally closed, so opening it actually changes something (unlike the emergency-tie breakers which are already open by default, standby-only)
+
+how:
+```
+o0 5 TRIP_PULSE_ON
+```
+(not `o3` — that one ignores the action word, only `o0 <idx> <ACTION>` actually reads it)
+
+how to see it worked (3 ways, pick whichever):
+- outstation's own terminal logs `COMMAND: breaker 5 received OPEN (...)` the instant it lands
+- right after sending it, master prints `Status: SUCCESS` + `[5] : 0 : 1 : 0` (value `0` = open, that's the proof)
+- `scan_all` → first block of `[0]`..`[20]` lines = Binary Input, index 5 there = current breaker state (ignore all the other blocks, they're mostly empty placeholders)
+
+to undo: `o0 5 LATCH_ON`
+
 ## Notes to self
 - `ping` works now (`iputils-ping` in the image), `ip route` should show a default route automatically (DefaultRoute service), if a docker node only has loopback something's wrong with its link in the xml
