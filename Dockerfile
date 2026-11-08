@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     sshpass \
     vim \
     iproute2 \
+    nmap \
     iputils-ping \
     && apt-get clean \
     && mkdir -p /run/sshd \
@@ -71,6 +72,7 @@ RUN git clone --recursive http://github.com/Kisensum/pydnp3 && \
 COPY pydnp3_master.py /workspace/pydnp3_master.py
 COPY pandapower_grid.py /workspace/pandapower_grid.py
 COPY pandapower_outstation.py /workspace/pandapower_outstation.py
+COPY attack_1/watch_physical_effect.py /workspace/watch_physical_effect.py
 COPY attack_1/install_ssh.sh /workspace/cute_name.sh
 RUN chmod +x /workspace/cute_name.sh
 

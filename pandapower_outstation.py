@@ -10,6 +10,7 @@ its class layout so it stays consistent with pydnp3_master.py's own style.
 Requires pydnp3 (built per the Dockerfile) -- the grid logic itself lives in
 pandapower_grid.py, which has no pydnp3 dependency and can be tested on its own.
 """
+import json
 import logging
 import sys
 import time
@@ -109,6 +110,32 @@ class OutstationApplication(opendnp3.IOutstationApplication):
             self.apply_update(opendnp3.Analog(self.model.read_analog(index)), index)
         for index in BINARY_STATUS_POINT_MAP:
             self.apply_update(opendnp3.Binary(self.model.read_binary(index)), index)
+        self.dump_physical_state()
+
+    def dump_physical_state(self):
+        """Write the full pandapower result tables to disk (not just the 5 DNP3-exposed
+        analog points) so a separate watcher script can show the real physical effect
+        of a command -- including buses/branches DNP3 itself doesn't monitor."""
+        net = self.model.net
+        state = {
+            "bus_vm_pu": {
+                str(row["name"]): (None if row["vm_pu"] != row["vm_pu"] else row["vm_pu"])
+                for _, row in net.res_bus.join(net.bus["name"]).iterrows()
+            },
+            "trafo_loading_percent": {
+                str(row["name"]): (None if row["loading_percent"] != row["loading_percent"] else row["loading_percent"])
+                for _, row in net.res_trafo.join(net.trafo["name"]).iterrows()
+            },
+            "line_loading_percent": {
+                str(row["name"]): (None if row["loading_percent"] != row["loading_percent"] else row["loading_percent"])
+                for _, row in net.res_line.join(net.line["name"]).iterrows()
+            },
+        }
+        try:
+            with open("/workspace/live_state.json", "w") as f:
+                json.dump(state, f, indent=2)
+        except OSError as e:
+            _log.warning("could not write live_state.json: {}".format(e))
 
     def apply_update(self, value, index):
         _log.debug('Recording {} measurement, index={}, value={}'.format(type(value).__name__, index, value.value))

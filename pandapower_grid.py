@@ -58,8 +58,8 @@ def build_network() -> pp.pandapowerNet:
     net = pp.create_empty_network(name="ust_microgrid")
     switches, sgens, storages, lines = {}, {}, {}, {}
 
-    def sw(from_bus, line_id, key, closed=True):
-        switches[key] = pp.create_switch(net, bus=from_bus, element=line_id, et="l", closed=closed, name=key)
+    def sw(from_bus, line_id, key, closed=True, et="l"):
+        switches[key] = pp.create_switch(net, bus=from_bus, element=line_id, et=et, closed=closed, name=key)
 
     def bus(vn_kv, name):
         return pp.create_bus(net, vn_kv=vn_kv, name=name)
@@ -108,9 +108,14 @@ def build_network() -> pp.pandapowerNet:
     l = _line(net, tunnel, steam13, "L_CB1"); sw(tunnel, l, "CB1", closed=False)  # N.O. per diagram
 
     steam480 = bus(0.48, "STEAM_480v")
-    l = _line(net, steam13, steam480, "L_CB8_xfmr_side")
-    _xfmr(net, steam13, steam480, sn_mva=2.5, name="Tx_STEAM_2500kVA")
-    sw(steam13, l, "CB8")  # "STEAM Mains Breaker"
+    # CB8 gates the transformer directly (et="t") -- not a separate parallel
+    # line next to it. An earlier version had a line AND the transformer both
+    # connecting steam13<->steam480, so opening CB8 (on the line only) didn't
+    # actually isolate STEAM_480v -- power just rerouted through the still-
+    # closed transformer. This matches how every other breaker here works:
+    # gating the one real path in, not sitting next to an unguarded one.
+    tx_steam = _xfmr(net, steam13, steam480, sn_mva=2.5, name="Tx_STEAM_2500kVA")
+    sw(steam13, tx_steam, "CB8", et="t")  # "STEAM Mains Breaker"
     pp.create_load(net, steam480, p_mw=0.70, q_mvar=0.56, name="STEAM_Bldg_Load")
 
     steamemg480 = bus(0.48, "STEAM_Emergency_480v")
