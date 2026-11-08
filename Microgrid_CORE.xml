@@ -22,6 +22,9 @@
     <network id="11" name="n11" icon="" canvas="1" type="SWITCH">
       <position x="164.17849731445312" y="518.20947265625" lat="47.574455852728114" lon="-122.13011195794805" alt="2.0"/>
     </network>
+    <network id="40" name="swInternet" icon="" canvas="1" type="SWITCH">
+      <position x="2067.13525390625" y="1250.0" lat="47.56800000000000" lon="-122.10447013085609" alt="2.0"/>
+    </network>
   </networks>
   <devices>
     <device id="1" name="CentralR" icon="" canvas="1" type="router" class="" image="" compose="" compose_name="">
@@ -31,6 +34,7 @@
         <service name="zebra"/>
         <service name="IPForward"/>
         <service name="OSPFv2"/>
+        <service name="Firewall"/>
       </services>
     </device>
     <device id="2" name="MGEx" icon="" canvas="1" type="router" class="" image="" compose="" compose_name="">
@@ -135,10 +139,11 @@
         <service name="DefaultRoute"/>
       </services>
     </device>
-    <device id="30" name="Internet" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
+    <device id="30" name="Internet" icon="" canvas="1" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="2067.13525390625" y="1102.951171875" lat="47.56914000171516" lon="-122.10447013085609" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="22" name="APFac" icon="" canvas="1" type="router" class="" image="" compose="" compose_name="">
@@ -154,6 +159,7 @@
       <position x="148.079833984375" y="872.5762329101562" lat="47.57123439060687" lon="-122.13032888307791" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="20" name="n20" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
@@ -166,12 +172,14 @@
       <position x="1692.5687255859375" y="524.4420166015625" lat="47.57439919589739" lon="-122.10951731341574" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="34" name="DockerAPFac" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="1745.539794921875" y="898.2974243164062" lat="47.57100055779096" lon="-122.10880354259773" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="29" name="n29" icon="" canvas="1" type="PC" class="" image="" compose="" compose_name="">
@@ -208,36 +216,42 @@
       <position x="1146.386474609375" y="599.2303466796875" lat="47.57371932912185" lon="-122.11687697137523" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="35" name="DockerFacDCV" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="1439.001708984375" y="1376.1431884765625" lat="47.566656244866905" lon="-122.11293406031416" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="36" name="DockerFDBase" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="969.0503540039062" y="1536.07568359375" lat="47.56520214541214" lon="-122.11926652758874" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="37" name="DockerAndAre" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="166.33006286621094" y="1232.5087890625" lat="47.5679621283223" lon="-122.13008296618476" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="38" name="DockerCentralR" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="715.06005859375" y="928.5184936523438" lat="47.57072581499452" lon="-122.12268897805451" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
     <device id="39" name="DockerMaster" icon="" canvas="0" type="" class="docker" image="dnp3_container_image" compose="" compose_name="">
       <position x="1078.144775390625" y="700.0" lat="47.57133483470227" lon="-122.11779650979658" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
+        <service name="SSH"/>
       </services>
     </device>
   </devices>
@@ -337,8 +351,11 @@
       <iface2 id="0" name="eth0" mac="00:00:00:aa:00:22" ip4="10.0.13.21" ip4_mask="24" ip6="2001:0:0:d::15" ip6_mask="64"/>
       <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
     </link>
-    <link node1="1" node2="30">
+    <link node1="1" node2="40">
       <iface1 id="7" name="eth7" mac="00:00:00:aa:00:23" ip4="10.0.14.1" ip4_mask="24" ip6="2001:0:0:e::1" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
+    </link>
+    <link node1="40" node2="30">
       <iface2 id="0" name="eth0" mac="00:00:00:aa:00:24" ip4="10.0.14.20" ip4_mask="24" ip6="2001:0:0:e::14" ip6_mask="64"/>
       <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0" buffer="0"/>
     </link>
@@ -455,6 +472,16 @@
     <configuration name="mtu" value="0"/>
     <configuration name="checksums" value="0"/>
   </session_options>
+  <service_configurations>
+    <service name="Firewall" node="1">
+      <templates>
+        <template name="firewall.sh"><![CDATA[#!/bin/sh
+# Block everything coming from internet subnet being forwarded anywhere except if coming from internet ip own ip (in forward mode)
+iptables -A FORWARD -s 10.0.14.0/24 ! -s 10.0.14.20 ! -d 10.0.14.0/24 -j DROP
+]]></template>
+      </templates>
+    </service>
+  </service_configurations>
   <session_metadata>
     <configuration name="shapes" value="[]"/>
     <configuration name="edges" value="[]"/>

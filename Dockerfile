@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     openssh-client \
     openssh-server \
     sshpass \
+    vim \
     iproute2 \
     iputils-ping \
     && apt-get clean \
@@ -66,13 +67,11 @@ RUN git clone --recursive http://github.com/Kisensum/pydnp3 && \
 # directory. Scripts below are still placed at an explicit /workspace path;
 # just `cd /workspace` (or use the absolute path) when running them by hand.
 
-# Copy the master script and the pandapower outstation into the workspace
+# Copy the master script and the pandapower outstation into the workspace (not execute them so that one image for both outstation and master)
 COPY pydnp3_master.py /workspace/pydnp3_master.py
 COPY pandapower_grid.py /workspace/pandapower_grid.py
 COPY pandapower_outstation.py /workspace/pandapower_outstation.py
+COPY attack_1/install_ssh.sh /workspace/cute_name.sh
+RUN chmod +x /workspace/cute_name.sh
 
-# Expose ports if necessary (for server use, if any)
-EXPOSE 8080
-
-# Command to keep the container running (replace with your desired command if necessary)
-CMD ["/bin/bash"]
+CMD service ssh start && /bin/bash
