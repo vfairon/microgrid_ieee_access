@@ -29,6 +29,7 @@ In the GUI chose the Microgrid_CORE.xml file that has :
 - ssh/ping/.. installed
 
 ## Activate ssh 
+**DEPRECIATED : NOW DOCKER IMAGE STARTS IT AUTOMATICALLY**
 Double click on one docker to get shell
 
 not needed for dnp3 but if you wanna test 
@@ -56,30 +57,34 @@ cd /workspace && python3 pydnp3_master.py 10 <outstation_ip>
 ```
 `10` = DNP3 link address, same for every outstation, fine since master only talks to one at a time (not a shared/multi-drop link)
 
-## 6. Commands at the `master_10>` prompt
+
+
+
+
+## Only "Internet" node reachable from laptop (not the whole grid)
+
+Create virtual ethernet cable on laptop (or VM)  and plug it into the switch connected to the internet machine. Set an ip to the laptop part on the subnet that the internet machine has (so default route possible) and add a firewall onto the Mastter that says if it is a "forwarded" coming from the internet subnet, drop (only internet machine can go past the master) : 
+
+b.40.1 is the switch id="40"
+TO RUN On laptop : 
 ```
-scan_all                  # read everything (breakers + voltages + line loading)
-o1 0 LATCH_ON              # close breaker 0
-o3 0 TRIP_PULSE_ON          # open breaker 0
-quit                       # NOT ctrl-c, that crashes it
+sudo ip link add vlaptop type veth peer name vlaptop-br
+sudo ip link set vlaptop-br master b.40.1
+sudo ip link set vlaptop-br up
+sudo ip addr add 10.0.14.21/24 dev vlaptop
+sudo ip link set vlaptop up
 ```
-outstation terminal logs `COMMAND: breaker 0 received CLOSE (...)` when it gets one, so you can see it land without decoding raw DNP3 hex
 
-## 7. Replicate the paper's attack
-why: paper's first real attack (after phishing gets them in) = disconnect a breaker to cause instability/blackout. closest match we have = `CB8` (STEAM mains breaker), index `5` — it's normally closed, so opening it actually changes something (unlike the emergency-tie breakers which are already open by default, standby-only)
+And to cleanup : 
+`sudo ip link delete vlaptop`
 
-how:
+
+## Kill stale : 
 ```
-o0 5 TRIP_PULSE_ON
+docker rm -f $(docker ps -aq) 2>/dev/null
+sudo pkill -9 vnoded
+sudo pkill -9 -f "/usr/local/bin/core-daemon"
+sudo rm -rf /tmp/pycore.*
+for d in $(ip -br link show | awk '{print $1}' | sed 's/@.*//' | grep -E '^(p|b)\.[0-9]+\.[0-9]+$|^beth|^veth|^ctrl[0-9]'); do sudo ip link delete "$d" 2>/dev/null; done
+ip -br link show | grep -E '^(p|b)\.|^beth|^veth|^ctrl[0-9]'   # should print nothing now
 ```
-(not `o3` — that one ignores the action word, only `o0 <idx> <ACTION>` actually reads it)
-
-how to see it worked (3 ways, pick whichever):
-- outstation's own terminal logs `COMMAND: breaker 5 received OPEN (...)` the instant it lands
-- right after sending it, master prints `Status: SUCCESS` + `[5] : 0 : 1 : 0` (value `0` = open, that's the proof)
-- `scan_all` → first block of `[0]`..`[20]` lines = Binary Input, index 5 there = current breaker state (ignore all the other blocks, they're mostly empty placeholders)
-
-to undo: `o0 5 LATCH_ON`
-
-## Notes to self
-- `ping` works now (`iputils-ping` in the image), `ip route` should show a default route automatically (DefaultRoute service), if a docker node only has loopback something's wrong with its link in the xml
