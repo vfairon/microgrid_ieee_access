@@ -24,6 +24,7 @@ first need to make it run (python3 ... on outstation)
 Then scan the whole subnet cuz central R has OSPF running and master just has default route to that one :
 `nmap -p 20000 --open -T4 -n 10.0.0.0/16`
 
+
 # Commands at the `master_10>` prompt
 ```
 scan_all                  # read everything (breakers + voltages + line loading)
@@ -34,3 +35,17 @@ quit                       # NOT ctrl-c, that crashes it
 
 
 # The fix
+## Disable password login on all machines :
+IN : /etc/ssh/sshd_config
+
+Replace : #PasswordAuthentication yes
+By : PasswordAuthentication no 
+
+Restart : 
+`ps aux | grep "sshd"`
+```
+/usr/sbin/sshd -f /etc/ssh/sshd_config
+```
+
+
+## Firewall on central router accepting no forward from internet (even it cannot connect to OT network)
