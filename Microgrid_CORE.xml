@@ -476,8 +476,13 @@
     <service name="Firewall" node="1">
       <templates>
         <template name="firewall.sh"><![CDATA[#!/bin/sh
-# Block everything coming from internet subnet being forwarded anywhere except if coming from internet ip own ip (in forward mode)
-iptables -A FORWARD -s 10.0.14.0/24 ! -s 10.0.14.20 ! -d 10.0.14.0/24 -j DROP
+# Internet's own address may still pivot onward (simulates a compromised
+# host, not just a shortcut) -- accept it first, since iptables stops at
+# the first matching rule.
+iptables -A FORWARD -s 10.0.14.20 -j ACCEPT
+# Everything else on Internet's subnet (e.g. a laptop plugged in via the
+# veth trick) gets dropped if it's headed anywhere but that same subnet.
+iptables -A FORWARD -s 10.0.14.0/24 ! -d 10.0.14.0/24 -j DROP
 ]]></template>
       </templates>
     </service>
